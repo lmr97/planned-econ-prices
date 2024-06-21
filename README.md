@@ -44,12 +44,13 @@ The coordinates are intended to represent UPC barcodes, as suggested in the book
 #### Pre-processed Data Table Format
 The code expects a `.txt` file with each line having the universal product code UPC of the product produced, a comma, the UPC of the input, a space, and the quantity of the input. An example line would be:
 
-  101010282293,882872662923 239.7
+&ensp;`101010282293,882872662923 239.7`
 
 This line encodes that, in making product 101010282293, 239.7 units of product 882872662923 were used. Consistent with earlier definitions, when the first number after the comma is 0, the number after the space represents the number of person-hours (directly) expended to produce the units of the product. And when the number after the comma is 1, the number after the space is the units produced of the product whose UPC is at the beginning of the line. An example of each of these would be:
 
-  011010282293,0 40112.23
-  011010282293,1 76234.60
+&ensp;`011010282293,0 40112.23`
+
+&ensp;`011010282293,1 76234.60`
 
 The first encodes the usage of 40112.23 person-hours of labor in the making of product 011010282293, and the second encodes that 76234.60 units of product 011010282293 were produced. 
 
