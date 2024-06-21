@@ -1,6 +1,7 @@
 # Inputs, outputs, misc
 *.txt
 *.numbers
+*.csv
 
 # CMake files
 *.make
