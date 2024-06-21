@@ -1,3 +1,6 @@
+# Note to self: you can untrack files by running the following on the terminal:
+# git rm --cached <file>
+
 # Inputs, outputs, misc
 *.txt
 *.numbers
