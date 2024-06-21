@@ -2,6 +2,16 @@
 *.txt
 *.numbers
 
+# CMake files
+*.make
+*.cmake
+*.yaml
+*.bin
+*.c
+*.internal
+*.ts
+
+
 # Prerequisites
 *.d
 
@@ -33,4 +43,5 @@
 # Executables
 *.exe
 *.out
-*.app
+*.
+*
