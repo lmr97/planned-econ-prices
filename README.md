@@ -68,4 +68,4 @@ n | Runtime (ms) | Ratio to previous
 The tendency here is roughly adding an order of magnitude each time an order of magnitude is added to $n$, but it seems more than that. Further analysis is required to track down the source of the balooning runtime, which is one major reason why this is still a work in progress.
 
 ## Miscellaneous files
-There are a few randomly generated input-output tables with 15, 100, 1,000, and 10,000 products in them. I also included the Python script I used to generate them, as `iotable_generator.py`. In that script, you can tweak the number of products as well as the matrix density. 
+There are a few randomly generated input-output tables with 15, 100, 1,000, and 10,000 products in them. I also included the Python script I used to generate them, as `iotable_generator.py`. In that script, you can tweak the number of products as well as the matrix density. `iotable_spreadsheet.xlsx` is a full input-output table for the 15-product file as a Excel spreadsheet, so you can see what the matrix would look like fully expanded in a simple format. And `prices.csv` is an example of what the program's output would look like. 
