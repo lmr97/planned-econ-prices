@@ -58,7 +58,7 @@ The first encodes the usage of 40112.23 person-hours of labor in the making of p
 ## Time complexity
 In testing this implementation, seems to have a higher-order time complexity than the linear complexity the authors claim. For $n$ products (using `iotable` files available in the repository), I got the following runtimes, each for 10 iterations:
 
-n | Runtime (ms) | Ratio to previous
+$n$ | Runtime (ms) | Ratio to previous
 --- | --- | ---
 15 | 11 | (n/a)
 100 | 16 | 1.45
