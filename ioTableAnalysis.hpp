@@ -178,7 +178,7 @@ string parseCmdOptions(const int argc,
 
 // load the input-output table into an instance of std::unordered_map
 bool loadIOTable(const char* fileLoc, 
-                 unordered_map<ProdInputPair,double>* ioTable)
+                 unordered_map<ProdInputPair,double>& ioTable)
 {
     ifstream fin(fileLoc, ios::in);
     ProdInputPair PIpair{0,0};
@@ -199,7 +199,7 @@ bool loadIOTable(const char* fileLoc,
 
             ioQuant = stod(file_line.substr(file_line.find(" "), file_line.back()));
             
-            (*ioTable)[PIpair] = ioQuant;
+            ioTable[PIpair] = ioQuant;
         }
     }
 
@@ -209,7 +209,7 @@ bool loadIOTable(const char* fileLoc,
 
 
 // writes for CSV format (with header)
-void savePricesToFile(unordered_map<long int, double>* prices, const char* outputFile)
+void savePricesToFile(unordered_map<long int, double>& prices, const char* outputFile)
 {
     ofstream fout(outputFile, ios::out);
     cout << "\nSaving data..." << endl;
@@ -228,7 +228,7 @@ void savePricesToFile(unordered_map<long int, double>* prices, const char* outpu
     }
 
     fout << "ProductUPC,Price" << endl;
-    for (auto itr = prices->begin(); itr != prices->end(); ++itr)
+    for (auto itr = prices.begin(); itr != prices.end(); ++itr)
     {
         fout << itr->first << "," << itr->second << endl;
     }
@@ -283,9 +283,9 @@ void printKeys(unordered_map<ProdInputPair,double>* ioTable)
 }
 
 
-void printPrices(unordered_map<long int,double>* prices)
+void printPrices(unordered_map<long int,double>& prices)
 {
-    for (auto iter = prices->begin(); iter != prices->end(); ++iter)
+    for (auto iter = prices.begin(); iter != prices.end(); ++iter)
     {
         cout << iter->first << ": " << iter->second << " lh/unit" << endl;
     }

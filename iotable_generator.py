@@ -7,7 +7,7 @@
 import random, math
 import numpy as np
 
-NUM_PRODUCTS = 100_000
+NUM_PRODUCTS = 10_000
 MATRIX_DENSITY = 0.01
 OUTPUT_WIDTH = 90
 NUM_INPUTS = int(MATRIX_DENSITY * NUM_PRODUCTS**2)
@@ -24,7 +24,7 @@ def print_loading_bar(rows_now, total_rows):
             f"{(rows_now+1)/total_rows:.2%}",
             end = "\r")
 
-with open("/Users/martinreid/Desktop/Personal_Coding/C++/socialist-planning-prices/iotable-"+str(NUM_PRODUCTS)+".txt", "w") as iotable_writer:
+with open("iotable-"+str(NUM_PRODUCTS)+".txt", "w") as iotable_writer:
     gen_iotable = np.empty((2*NUM_PRODUCTS + NUM_INPUTS,3), dtype=int)
 
     # load labor values

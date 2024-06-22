@@ -6,16 +6,16 @@ using namespace std;
 
 // This function checks whether two numbers are equal within the given precision
 // (number of decimal points)
-bool precisionReached(unordered_map<long int, double>* prevIterPrices,
-                      unordered_map<long int, double>* currIterPrices,
+bool precisionReached(unordered_map<long int, double>& prevIterPrices,
+                      unordered_map<long int, double>& currIterPrices,
                       const int precision)
 {
-    if (currIterPrices->empty()) return false;
+    if (currIterPrices.empty()) return false;
 
     double precisionUnit = pow(10, -precision); 
-    for (const auto &[productKey, price] : *currIterPrices)
+    for (const auto &[productKey, price] : currIterPrices)
     {
-        if (abs(price - prevIterPrices->at(productKey)) > precisionUnit) return false;
+        if (abs(price - prevIterPrices.at(productKey)) > precisionUnit) return false;
     }
 
     return true;
@@ -28,18 +28,18 @@ bool precisionReached(unordered_map<long int, double>* prevIterPrices,
 // Toward a New Socialism (1993), but have different stopping points.
 
 // (1) This implementation stops after a given number of iterations has bee reached
-unordered_map<long int, double>* calcPricesConstIter(unordered_map<ProdInputPair,double>* ioTable,
-                                                     const int iterations)
+void calcPricesConstIter(unordered_map<ProdInputPair,double>& ioTable,
+                         unordered_map<long, double>& prices,
+                         const int iterations)
 {
     // initialize previous (in this case, initial) iteration prices list,
     // using only direct labor
-    auto laborOnlyPrices = new unordered_map<long int, double>;
-    auto prevIterPrices = new unordered_map<long int, double>;
-    auto currIterPrices = new unordered_map<long int, double>;
+    unordered_map<long int, double> laborOnlyPrices;
+    unordered_map<long int, double> prevIterPrices;
     ProdInputPair PIpair{0,0};
     long int currentProduct{0};
 
-    for (auto iter = ioTable->begin(); iter != ioTable->end(); ++iter)
+    for (auto iter = ioTable.begin(); iter != ioTable.end(); ++iter)
     {   
         if (iter->first.product != currentProduct)                    // to prevent redundant statements
         {
@@ -47,11 +47,11 @@ unordered_map<long int, double>* calcPricesConstIter(unordered_map<ProdInputPair
             PIpair.product = currentProduct;
             PIpair.input = 0;
 
-            (*laborOnlyPrices)[currentProduct] = ioTable->at(PIpair);  // start with the labor value...
+            laborOnlyPrices[currentProduct] = ioTable.at(PIpair);  // start with the labor value...
 
             // ...and divide it by quantity produced of that product
             PIpair.input = 1;
-            (*laborOnlyPrices)[currentProduct] /= ioTable->at(PIpair);
+            laborOnlyPrices[currentProduct] /= ioTable.at(PIpair);
         }
     }
 
@@ -61,11 +61,11 @@ unordered_map<long int, double>* calcPricesConstIter(unordered_map<ProdInputPair
     // skipped and will go to the precision-based iterations.
     cout << "\nNow running iterations." << endl;
 
-    *prevIterPrices = *laborOnlyPrices;
-    *currIterPrices = *laborOnlyPrices;
+    prevIterPrices = laborOnlyPrices;
+    prices = laborOnlyPrices;
     for (int i = 0; i < iterations; i++)
     {
-        for (auto iter = ioTable->begin(); iter != ioTable->end(); ++iter)
+        for (auto iter = ioTable.begin(); iter != ioTable.end(); ++iter)
         {
             PIpair = iter->first;               // key loaded into local variable for speed
 
@@ -75,39 +75,34 @@ unordered_map<long int, double>* calcPricesConstIter(unordered_map<ProdInputPair
             
             // add prevIterPrices cost of the input to the current product's total cost, 
             // and divide by total units produced to get the per-unit cost of that input
-            double priceAddition = ioTable->at(PIpair) * prevIterPrices->at(PIpair.input);
+            double priceAddition = ioTable.at(PIpair) * prevIterPrices.at(PIpair.input);
             PIpair.input = 1;
-            priceAddition       /= ioTable->at(PIpair);
+            priceAddition       /= ioTable.at(PIpair);
 
-            currIterPrices->at(PIpair.product) += priceAddition;
+            prices.at(PIpair.product) += priceAddition;
         }
 
-        *prevIterPrices = *currIterPrices;  // save last iteration's prices...
-        *currIterPrices = *laborOnlyPrices; // ...and start fresh for current iteration
+        prevIterPrices = prices;          // save last iteration's prices...
+        prices = laborOnlyPrices;         // ...and start fresh for current iteration
 
         cout << "iteration " << i+1 << " of " << iterations << " complete" << endl;
     }
-
-    delete prevIterPrices;
-    delete laborOnlyPrices;
-
-    return currIterPrices;
 }
 
 
 // (2) This implementation stops after a certain precision has been reached
-unordered_map<long int, double>* calcPricesPrec(unordered_map<ProdInputPair,double>* ioTable,
-                                                const int precision)
+void calcPricesPrec(unordered_map<ProdInputPair,double>& ioTable,
+                    unordered_map<long, double>& prices,
+                    const int precision)
 {
     // initialize previous (in this case, initial) iteration prices list,
     // using only direct labor
-    auto laborOnlyPrices = new unordered_map<long int, double>;
-    auto prevIterPrices  = new unordered_map<long int, double>;
-    auto currIterPrices  = new unordered_map<long int, double>;
+    unordered_map<long int, double> laborOnlyPrices;
+    unordered_map<long int, double> prevIterPrices;
     ProdInputPair PIpair{0,0};
     long int currentProduct{0};
 
-    for (auto iter = ioTable->begin(); iter != ioTable->end(); ++iter)
+    for (auto iter = ioTable.begin(); iter != ioTable.end(); ++iter)
     {   
         if (iter->first.product != currentProduct)                    // to prevent redundant statements
         {
@@ -115,11 +110,11 @@ unordered_map<long int, double>* calcPricesPrec(unordered_map<ProdInputPair,doub
             PIpair.product = currentProduct;
             PIpair.input = 0;
 
-            (*laborOnlyPrices)[currentProduct] = ioTable->at(PIpair);  // start with the labor value...
+            laborOnlyPrices[currentProduct] = ioTable.at(PIpair);  // start with the labor value...
 
             // ...and divide it by quantity produced of that product
             PIpair.input = 1;
-            (*laborOnlyPrices)[currentProduct] /= ioTable->at(PIpair);
+            laborOnlyPrices[currentProduct] /= ioTable.at(PIpair);
         }
     }
 
@@ -128,16 +123,16 @@ unordered_map<long int, double>* calcPricesPrec(unordered_map<ProdInputPair,doub
     cout << "Now iterating until precision == " << precision << endl;
     int iterCounter{1};
 
-    *currIterPrices = *laborOnlyPrices;
+    prices = laborOnlyPrices;
     do 
     {
         auto start = chrono::high_resolution_clock::now();
 
-        *prevIterPrices = *currIterPrices;  // save last iteration's prices...
-        *currIterPrices = *laborOnlyPrices; // ...and start fresh for current iteration
+        prevIterPrices = prices;     // save last iteration's prices...
+        prices = laborOnlyPrices;    // ...and start fresh for current iteration
 
 
-        for (auto iter = ioTable->begin(); iter != ioTable->end(); ++iter)
+        for (auto iter = ioTable.begin(); iter != ioTable.end(); ++iter)
         {
             PIpair = iter->first;               // key loaded into local variable for speed
 
@@ -147,11 +142,11 @@ unordered_map<long int, double>* calcPricesPrec(unordered_map<ProdInputPair,doub
             
             // add prevIterPrices cost of the input to the current product's total cost, 
             // and divide by total units produced to get the per-unit cost of that input
-            double priceAddition = ioTable->at(PIpair) * prevIterPrices->at(PIpair.input);
+            double priceAddition = ioTable.at(PIpair) * prevIterPrices.at(PIpair.input);
             PIpair.input = 1;
-            priceAddition       /= ioTable->at(PIpair);
+            priceAddition       /= ioTable.at(PIpair);
 
-            currIterPrices->at(PIpair.product) += priceAddition;
+            prices.at(PIpair.product) += priceAddition;
         }
 
         //printPrices(currIterPrices);
@@ -162,12 +157,8 @@ unordered_map<long int, double>* calcPricesPrec(unordered_map<ProdInputPair,doub
         auto timeTaken = chrono::duration_cast<chrono::milliseconds>(stop-start);
         cout << "completed in " << setprecision(4) << timeTaken.count()/1000.0 << " seconds" << endl;
     }
-    while(!precisionReached(prevIterPrices, currIterPrices, precision));
+    while(!precisionReached(prevIterPrices, prices, precision));
 
-    delete prevIterPrices;
-    delete laborOnlyPrices;
-
-    return currIterPrices;
 }
 
 
@@ -199,7 +190,7 @@ int main(int argc, char* argv[])
     if (cla["precision"])  precision  = atoi(cla["precision"]);
     if (cla["iterations"]) iterations = atoi(cla["iterations"]); 
 
-    auto ioTable = new unordered_map<ProdInputPair,double>;
+    unordered_map<ProdInputPair,double> ioTable;
     bool ioTableLoaded = loadIOTable(cla["file"], ioTable);
     try
     {
@@ -208,26 +199,21 @@ int main(int argc, char* argv[])
     catch (const invalid_argument& ia)
     {
         cerr << ia.what() << endl;
-        delete ioTable;
         return 0;
     }
 
 
-    unordered_map<long int, double>* prices;
-    if (precision)  prices = calcPricesPrec(ioTable, precision);
-    if (iterations) prices = calcPricesConstIter(ioTable, iterations);
-    //printPrices(prices);
+    unordered_map<long int, double> prices;
+    if (precision)  calcPricesPrec(ioTable, prices, precision);
+    if (iterations) calcPricesConstIter(ioTable, prices, iterations);
 
     if (cla["outputFile"]) savePricesToFile(prices, cla["outputFile"]);
     else printPrices(prices);
-    
-    delete prices;
-    delete ioTable;
 
     auto stop = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(stop-start);
 
-    cout << "\nTime taken (seconds): " << duration.count()/1000.0 << endl << endl;
+    cout << setprecision(5) << "\nTime taken (seconds): " << duration.count()/1000.0 << endl << endl;
 
     return 0;
 }
