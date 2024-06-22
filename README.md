@@ -57,17 +57,27 @@ This line encodes that, in making product 101010282293, 239.7 units of product 8
 The first encodes the usage of 40112.23 person-hours of labor in the making of product 011010282293, and the second encodes that 76234.60 units of product 011010282293 were produced. 
 
 
-## Time complexity
-In testing this implementation, seems to have a higher-order time complexity than the linear complexity the authors claim. For $n$ products (using `iotable` files available in the repository), I got the following runtimes, each for 10 iterations:
+## Time complexity analysis
+Cockshott and Cottrell argue that their algorithm has the following time complexity for $n$ products:
 
-$n$ | Runtime (ms) | Ratio to previous
---- | --- | ---
-15 | 11 | (n/a)
-100 | 16 | 1.45
-1,000 | 302 | 18.88
-10,000 | 20,034 | 79.42
+$$
+O(nfi)
+$$
 
-The tendency here is roughly adding an order of magnitude each time an order of magnitude is added to $n$, but it seems adding more than that. Further analysis is required to track down the source of the balooning runtime, which is one major reason why this is still a work in progress.
+where $f$ is the average number of other products used in the production of each good, and $i$ is the number of iterations. 
+
+In testing this implementation, seems to have a higher-order time complexity than the linear complexity the authors claim. For $n$ products (using the `iotable` files available in the repository, and bigger product files that were too large for GitHub), I got the following runtimes, each for 10 iterations. Each is compared as a ratio to the last, and compared with the runtime ratio the authors' time complexity would imply (given by $(n_k f_k)/(n_{k-1} f_{k-1})$, for row $2 < k < 5$:
+
+$n$ | $f$ | Runtime | Expected ratio to previous row's run | Measured ratio to previous row's run
+--- | --- | --- | --- | ---
+14 | 1.57 | 9 ms | (n/a) | (n/a)
+100 | 1 | 23 ms | 4.55 | 2.55
+1,000 | 10 | 277 ms | 100 | 12.04
+10,000 | 100 | 28,155 ms | 100 | 101.64
+20,000 | 200 | 111,640 ms | 4 | 3.97
+50,000 | 50 | 70,981 ms | 0.625 | 0.636
+
+This implementation far outstrips projections for smaller numbers, but the gap is closes up as $n$ grows. The closeness of measured ratios to expected ratios at higher $n$ values indicates that the time does in fact vary proportional to $n$ and $f$. This suggests the time complexity the authors propose is correct, and that the implementation is a decent one.
 
 ## Miscellaneous files
 There are a few randomly generated input-output tables with 15, 100, and 1,000 products in them. I also included the Python script I used to generate tables of arbitrary size and density, as `iotable_generator.py`. In that script, you can tweak the number of products as well as the matrix density. `iotable_spreadsheet.xlsx` is a full input-output table for the 15-product file as a Excel spreadsheet, so you can see what the matrix would look like fully expanded in a simple format. And `prices.csv` is an example of what the program's output would look like. 
