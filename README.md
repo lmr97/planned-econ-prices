@@ -22,7 +22,7 @@ cmake --build .
 cmake --build . --target install
 ```
 
-The resulting executable is named `plecpr` (for **pl**</u>anned <u>**ec**</u>onomy <u>**pr**</u>ices) and is installed in the working directory.
+The resulting executable is named `plecpr` (for ***pl***anned ***ec***onomy ***pr***ices) and is installed in the working directory.
 
 ## CLI usage
 `plecpr` has the following options:
@@ -66,7 +66,7 @@ $$
 
 where $f$ is the average number of other products used in the production of each good, and $i$ is the number of iterations. 
 
-In testing this implementation, seems to have a higher-order time complexity than the linear complexity the authors claim. For $n$ products (using the `iotable` files available in the repository, and bigger product files that were too large for GitHub), I got the following runtimes, each for 10 iterations. Each is compared as a ratio to the last, and compared with the runtime ratio the authors' time complexity would imply (given by $(n_k f_k)/(n_{k-1} f_{k-1})$, for row $2 < k < 5$:
+In testing this implementation, seems to have a higher-order time complexity than the linear complexity the authors claim. For $n$ products (using the `iotable` files available in the repository, and bigger product files that were too large for GitHub), I got the following runtimes, each for 10 iterations. Each is compared as a ratio to the last, and compared with the runtime ratio the authors' time complexity would imply (given by $(n_k f_k)/(n_{k-1} f_{k-1})$, for row $2 < k < 5$):
 
 $n$ | $f$ | Runtime | Expected ratio to previous row's run | Measured ratio to previous row's run
 --- | --- | --- | --- | ---
