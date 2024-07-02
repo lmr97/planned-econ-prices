@@ -64,7 +64,7 @@ $$
 O(nfi)
 $$
 
-where $f$ is the average number of other products used in the production of each good, and $i$ is the number of iterations. 
+where $f$ is the average number production factors for each good, and $i$ is the number of iterations for which the algorithm runs. 
 
 In testing this implementation, seems to have a higher-order time complexity than the linear complexity the authors claim. For $n$ products (using the `iotable` files available in the repository, and bigger product files that were too large for GitHub), I got the following runtimes, each for 10 iterations. Each is compared as a ratio to the last, and compared with the runtime ratio the authors' time complexity would imply (given by $(n_k f_k)/(n_{k-1} f_{k-1})$, for row $2 < k < 5$):
 
