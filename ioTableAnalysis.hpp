@@ -175,7 +175,7 @@ string parseCmdOptions(const int argc,
 };
 
 
-
+// TODO: implement threading for file loading
 // load the input-output table into an instance of std::unordered_map
 bool loadIOTable(const char* fileLoc, 
                  unordered_map<ProdInputPair,double>& ioTable)

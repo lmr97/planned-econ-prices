@@ -1,8 +1,11 @@
 // This is the main driver for the project
 
 #include "ioTableAnalysis.hpp"
+#include <thread>
 using namespace std;
 
+mutex theMutex;
+const unsigned int CORE_COUNT = thread::hardware_concurrency();
 
 // This function checks whether two numbers are equal within the given precision
 // (number of decimal points)
@@ -19,6 +22,37 @@ bool precisionReached(unordered_map<long int, double>& prevIterPrices,
     }
 
     return true;
+}
+
+
+// function for threads
+void calcPriceWorker(unordered_map<ProdInputPair,double>& ioTable,
+                     unordered_map<long, double>& prevIterPrices,
+                     unordered_map<long, double>& prices,
+                     // to make sure each thread shares the same iterator
+                     unordered_map<ProdInputPair,double>::iterator& ioTableIterator)
+{
+    while (true)
+    {
+        if (ioTableIterator != ioTable.end()) break;
+
+        ProdInputPair PIpair = ioTableIterator->first;
+
+        // no need to consider the output quantity column (irrelevant)
+        // or labor column (already accounted for)
+        if(PIpair.input == 1 || PIpair.input == 0) continue;     
+        
+        // add prevIterPrices cost of the input to the current product's total cost, 
+        // and divide by total units produced to get the per-unit cost of that input
+        double priceAdd = ioTable.at(PIpair) * prevIterPrices.at(PIpair.input);
+        PIpair.input    = 1;
+        priceAdd       /= ioTable.at(PIpair);
+        
+        theMutex.lock();
+        prices.at(PIpair.product) += priceAdd;
+        ++ioTableIterator;
+        theMutex.unlock();
+    }
 }
 
 
@@ -59,27 +93,28 @@ void calcPricesConstIter(unordered_map<ProdInputPair,double>& ioTable,
     // constant-iteration algorithm
     // if iterations==0, this loop and following conditional will be 
     // skipped and will go to the precision-based iterations.
-    cout << "\nNow running iterations." << endl;
+    cout << "\n\nNow running iterations." << endl;
+    cout << "Working on " << CORE_COUNT << " cores" << endl << endl;
 
     prevIterPrices = laborOnlyPrices;
     prices = laborOnlyPrices;
+
     for (int i = 0; i < iterations; i++)
     {
-        for (auto iter = ioTable.begin(); iter != ioTable.end(); ++iter)
+        thread thread_tracker[CORE_COUNT];
+        auto ioTableIterator = ioTable.begin();
+        for (int i = 0; i < CORE_COUNT; i++)
         {
-            PIpair = iter->first;               // key loaded into local variable for speed
+            thread_tracker[i] = thread(calcPriceWorker, 
+                                       ref(ioTable), 
+                                       ref(prevIterPrices), 
+                                       ref(prices), 
+                                       ref(ioTableIterator));
+        }
 
-            // no need to consider the output quantity column (irrelevant)
-            // or labor column (already accounted for)
-            if(PIpair.input == 1 || PIpair.input == 0) continue;     
-            
-            // add prevIterPrices cost of the input to the current product's total cost, 
-            // and divide by total units produced to get the per-unit cost of that input
-            double priceAddition = ioTable.at(PIpair) * prevIterPrices.at(PIpair.input);
-            PIpair.input = 1;
-            priceAddition       /= ioTable.at(PIpair);
-
-            prices.at(PIpair.product) += priceAddition;
+        for (int i = 0; i < CORE_COUNT; i++)
+        {
+            thread_tracker[i].join();
         }
 
         prevIterPrices = prices;          // save last iteration's prices...
@@ -121,6 +156,7 @@ void calcPricesPrec(unordered_map<ProdInputPair,double>& ioTable,
 
     // precision-based algorithm
     cout << "Now iterating until precision == " << precision << endl;
+    cout << "Working on " << CORE_COUNT << " cores" << endl;
     int iterCounter{1};
 
     prices = laborOnlyPrices;
@@ -129,22 +165,20 @@ void calcPricesPrec(unordered_map<ProdInputPair,double>& ioTable,
         prevIterPrices = prices;     // save last iteration's prices...
         prices = laborOnlyPrices;    // ...and start fresh for current iteration
 
-
-        for (auto iter = ioTable.begin(); iter != ioTable.end(); ++iter)
+        thread thread_tracker[CORE_COUNT];
+        auto ioTableIterator = ioTable.begin();
+        for (int i = 0; i < CORE_COUNT; i++)
         {
-            PIpair = iter->first;               // key loaded into local variable for speed
+            thread_tracker[i] = thread(calcPriceWorker, 
+                                       ref(ioTable), 
+                                       ref(prevIterPrices), 
+                                       ref(prices), 
+                                       ref(ioTableIterator));
+        }
 
-            // no need to consider the output quantity column (irrelevant)
-            // or labor column (already accounted for)
-            if(PIpair.input == 1 || PIpair.input == 0) continue;     
-            
-            // add prevIterPrices cost of the input to the current product's total cost, 
-            // and divide by total units produced to get the per-unit cost of that input
-            double priceAddition = ioTable.at(PIpair) * prevIterPrices.at(PIpair.input);
-            PIpair.input = 1;
-            priceAddition       /= ioTable.at(PIpair);
-
-            prices.at(PIpair.product) += priceAddition;
+        for (int i = 0; i < CORE_COUNT; i++)
+        {
+            thread_tracker[i].join();
         }
 
         //printPrices(currIterPrices);

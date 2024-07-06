@@ -11,6 +11,7 @@
 *.make
 *.cmake
 *.yaml
+CMakeCXXCompilerId.cpp
 *.bin
 *.c
 *.internal
@@ -40,3 +41,8 @@
 *.exe
 *.out
 *
+!/**/
+
+# wait wait I need these kinds of files!
+!*.cpp
+!*.hpp
