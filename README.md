@@ -22,7 +22,7 @@ cmake --build .
 cmake --build . --target install
 ```
 
-The resulting executable is named `plecpr` (for ***pl***anned ***ec***onomy ***pr***ices) and is installed in the working directory.
+Two executables are built from this and installed in the working directory: one named `plecpr` (for ***pl***anned ***ec***onomy ***pr***ices), and one named `plecpr-mt`, which impliments multithreading. 
 
 ## CLI usage
 `plecpr` has the following options:
@@ -58,15 +58,17 @@ The first encodes the usage of 40112.23 person-hours of labor in the making of p
 
 
 ## Time complexity analysis
+**Note**: This analysis is done with the `plecpr`, not the multi-threading `plecpr-mt`.
+
 Cockshott and Cottrell argue that their algorithm has the following time complexity for $n$ products:
 
 $$
 O(nfi)
 $$
 
-where $f$ is the average number of other products used in the production of each good, and $i$ is the number of iterations. 
+where $f$ is the average number production factors for each good, and $i$ is the number of iterations for which the algorithm runs. 
 
-In testing this implementation, seems to have a higher-order time complexity than the linear complexity the authors claim. For $n$ products (using the `iotable` files available in the repository, and bigger product files that were too large for GitHub), I got the following runtimes, each for 10 iterations. Each is compared as a ratio to the last, and compared with the runtime ratio the authors' time complexity would imply (given by $(n_k f_k)/(n_{k-1} f_{k-1})$, for row $2 < k < 5$):
+In testing this implementation, seems to have a higher-order time complexity than the linear complexity the authors claim. For $n$ products (using the `iotable` files available in the repository, and bigger product files that were too large for GitHub), I got the following runtimes, each for 10 iterations. Each is compared as a ratio to the last, and compared with the runtime ratio the authors' time complexity would imply (given by $(n_r f_r)/(n_{r-1} f_{r-1})$, for row $r > 2$ in the table below):
 
 $n$ | $f$ | Runtime | Expected ratio to previous row's run | Measured ratio to previous row's run
 --- | --- | --- | --- | ---
@@ -77,7 +79,7 @@ $n$ | $f$ | Runtime | Expected ratio to previous row's run | Measured ratio to p
 20,000 | 200 | 111,640 ms | 4 | 3.97
 50,000 | 50 | 70,981 ms | 0.625 | 0.636
 
-This implementation far outstrips projections for smaller numbers, but the gap is closes up as $n$ grows. The closeness of measured ratios to expected ratios at higher $n$ values indicates that the time does in fact vary proportional to $n$ and $f$. This suggests the time complexity the authors propose is correct, and that the implementation is a decent one.
+This implementation far outstrips projections for smaller numbers, but the gap is closes up as $n$ grows. The closeness of measured ratios to expected ratios at higher $n$ values indicates that the time does in fact vary proportional to $n$ and $f$. When the measured ratio is higher than expected, that is likely due to the overhead of loading the data into the program (the timer was runs for the whole program runtime). In a production implementation, the data would likely already be accessible to the program, so the runtime would be even lower. This suggests the time complexity the authors propose is correct, and that the implementation is a decent one. 
 
 ## Miscellaneous files
 There are a few randomly generated input-output tables with 15, 100, and 1,000 products in them. I also included the Python script I used to generate tables of arbitrary size and density, as `iotable_generator.py`. In that script, you can tweak the number of products as well as the matrix density. `iotable_spreadsheet.xlsx` is a full input-output table for the 15-product file as a Excel spreadsheet, so you can see what the matrix would look like fully expanded in a simple format. And `prices.csv` is an example of what the program's output would look like. 
