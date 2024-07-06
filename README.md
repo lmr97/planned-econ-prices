@@ -22,7 +22,7 @@ cmake --build .
 cmake --build . --target install
 ```
 
-The resulting executable is named `plecpr` (for ***pl***anned ***ec***onomy ***pr***ices) and is installed in the working directory.
+Two executables are built from this and installed in the working directory: one named `plecpr` (for ***pl***anned ***ec***onomy ***pr***ices), and one named `plecpr-mt`, which impliments multithreading. 
 
 ## CLI usage
 `plecpr` has the following options:
@@ -58,6 +58,8 @@ The first encodes the usage of 40112.23 person-hours of labor in the making of p
 
 
 ## Time complexity analysis
+**Note**: This analysis is done with the `plecpr`, not the multi-threading `plecpr-mt`.
+
 Cockshott and Cottrell argue that their algorithm has the following time complexity for $n$ products:
 
 $$
