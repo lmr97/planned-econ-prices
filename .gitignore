@@ -8,10 +8,11 @@
 
 
 # CMake files
+build/
+CMakeFiles/
 *.make
 *.cmake
 *.yaml
-CMakeCXXCompilerId.cpp
 *.bin
 *.c
 *.internal
