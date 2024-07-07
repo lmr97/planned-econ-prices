@@ -1,6 +1,7 @@
 # Note to self: you can untrack files by running the following on the terminal:
 # git rm --cached <file>
 
+
 # Inputs, outputs, misc
 *.txt
 *.numbers
@@ -37,13 +38,7 @@ CMakeFiles/
 *.la
 *.a
 *.lib
-
 # Executables
 *.exe
 *.out
 *
-!/**/
-
-# wait wait I need these kinds of files!
-!*.cpp
-!*.hpp
