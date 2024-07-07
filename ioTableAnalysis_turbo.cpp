@@ -1,4 +1,5 @@
-// This is the main driver for the project
+// This is the main driver for the project, with multithreading implemented, 
+// adapted to the number of the cores on the machine running it
 
 #include "ioTableAnalysis.hpp"
 #include <thread>
