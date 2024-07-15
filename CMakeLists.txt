@@ -8,4 +8,7 @@ set( CMAKE_CXX_STANDARD_REQUIRED ON )
 
 add_executable(plecpr ioTableAnalysis.cpp)
 add_executable(plecpr-mt ioTableAnalysis_turbo.cpp)
-install(TARGETS plecpr DESTINATION ${CMAKE_CURRENT_SOURCE_DIR})
+
+# If you'd like these accessible 
+# through first element in PATH for some reason
+# install(TARGETS plecpr plecpr-mt DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

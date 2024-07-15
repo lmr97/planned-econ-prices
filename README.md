@@ -19,7 +19,6 @@ You can use CMake to build and install the program on your machine with the foll
 ```
 cmake .
 cmake --build .
-cmake --build . --target install
 ```
 
 Two executables are built from this and installed in the working directory: one named `plecpr` (for ***pl***anned ***ec***onomy ***pr***ices), and one named `plecpr-mt`, which impliments multithreading. 
