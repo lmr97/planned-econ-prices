@@ -134,6 +134,7 @@ bool parseCmdOptions(const int argc,
                      int      &iterations,
                      char*    &outputFile)
 {
+    // so that .compare() can be against string objects, not literals
     string helpOption("-h");
     string fileOption("-f");
     string precOption("-p");
@@ -171,7 +172,6 @@ bool parseCmdOptions(const int argc,
         throw ambiguous_halting_point();
     }
 
-    cout << fileLocation << endl;
     return false;
 };
 
@@ -183,7 +183,7 @@ bool loadIOTable(const char* fileLoc,
 {
     ifstream fin(fileLoc, ios::in);
     ProdInputPair PIpair{0,0};
-    string file_line{""}; 
+    string file_line(""); 
     double ioQuant{0};               // the actual input or output value
 
     if (!fin.good()) throw bad_file();
