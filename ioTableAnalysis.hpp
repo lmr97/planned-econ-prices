@@ -5,7 +5,7 @@
 #include <string>
 #include <unordered_map>
 #include <unistd.h>
-#include <stdexcept>
+#include <exception>
 #include <chrono>
 using namespace std;
 
@@ -50,6 +50,25 @@ class ProdInputPair
         {
             if (product == other.product && input == other.input) return true;
             return false;
+        }
+};
+
+
+class bad_file: public exception
+{
+    public:
+        virtual const char* what() const throw()
+        {
+            return "OPTION ERROR: File cannot be read or does not exist.\n";
+        }
+};
+
+class ambiguous_halting_point: public exception
+{
+    public:
+        virtual const char* what() const throw()
+        {
+            return "OPTION ERROR: Algorithm halting point unclear. Please use either -p or -i options to specify.\n";
         }
 };
 
@@ -109,69 +128,53 @@ void printHelp(char* executableName)
 }
 
 
-string parseCmdOptions(const int argc, 
-                       char* *argv,
-                       unordered_map<string, char*> &arguments)
+// bool indicates if help was printed
+bool parseCmdOptions(const int argc, 
+                     char**    argv,
+                     char*    &fileLocation,
+                     int      &precision,
+                     int      &iterations,
+                     char*    &outputFile)
 {
-    string msg{""};
-    arguments["file"] = nullptr;
-    arguments["iterations"] = nullptr;
-    arguments["precision"] = nullptr;
-    arguments["outputFile"] = nullptr;
+    string helpOption("-h");
+    string fileOption("-f");
+    string precOption("-p");
+    string iterOption("-i");
+    string outpOption("-o");
 
-    for (int i = 0; i < argc; i++)
+    for (int i = 1; i < argc; i++)
     {
-        if (argv[i][0] == '-')
+        if (!helpOption.compare(argv[i]))
         {
-            switch (argv[i][1])
-            {
-                case 'f':
-                    arguments["file"] = argv[i+1];
-                    break;
-                case 'i':
-                    arguments["iterations"] = argv[i+1];
-                    break;
-                case 'p': 
-                    arguments["precision"] = argv[i+1];
-                    break;
-                case 'o':
-                    arguments["outputFile"] = argv[i+1];
-                    break;
-                case 'h':
-                    printHelp(argv[0]);     
-                    return "help";           // no need to parse further, just print help and quit
-                case '-':                    // '--' denotes end of arguments (no long args here)
-                    goto Process_args;
-                default:
-                    msg = "\nINPUT ERROR: invalid command line option \'";
-                    msg.append((string)argv[i]);
-                    msg.append("\'\nUse -h to show help.\n");
-                    return msg;
-            }
+            printHelp(argv[0]);
+            return true;
         }
+        
+        if (!fileOption.compare(argv[i])) fileLocation =      argv[i+1] ;
+        if (!precOption.compare(argv[i])) precision    = atoi(argv[i+1]);
+        if (!iterOption.compare(argv[i])) iterations   = atoi(argv[i+1]);
+        if (!outpOption.compare(argv[i])) outputFile   =      argv[i+1] ;
     }
 
-    Process_args:
-    if (!(arguments["iterations"]) && !(arguments["precision"]))
+    // check for errors
+    if (!fileLocation)
     {
-        msg = "\nINPUT ERROR: either iterations or precision must be specified (with -i or -p respecively)\n";
+        printHelp(argv[0]);
+        throw bad_file();
     }
-
-    // you can have up to 6 decimal digits of precision. I doubt more is needed,
-    // so the program defaults to 6 if more is selected
-
-    if (arguments["precision"])
+    if (!precision && !iterations) 
     {
-        if (atoi(arguments["precision"]) > PRECISION_MAX)
-        {
-            cout << "\nMaximum precision is " << PRECISION_MAX;
-            cout << " decimal places, resetting precision to " << PRECISION_MAX << "." << endl;
-            string precMax = to_string(PRECISION_MAX);
-            arguments["precision"] = &precMax[0];  // non-const conversion to char*
-        }
+        printHelp(argv[0]);
+        throw ambiguous_halting_point();
+    }
+    if (precision && iterations) 
+    {
+        printHelp(argv[0]);
+        throw ambiguous_halting_point();
     }
 
-    return msg;
+    cout << fileLocation << endl;
+    return false;
 };
 
 
@@ -185,7 +188,7 @@ bool loadIOTable(const char* fileLoc,
     string file_line{""}; 
     double ioQuant{0};               // the actual input or output value
 
-    if (!fin.good()) return false;
+    if (!fin.good()) throw bad_file();
 
     cout << "\rLoading data..." << endl;
     while (!fin.eof())

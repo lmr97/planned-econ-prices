@@ -161,38 +161,33 @@ int main(int argc, char* argv[])
 {
     auto start = chrono::high_resolution_clock::now();
 
-    // get hash table of command line arguments
-    unordered_map<string, char*> cla;
-    string errorMsg = parseCmdOptions(argc, argv, cla);
-
-    // exit the program when -h selected, since help already printed
-    if (errorMsg == "help") return 0; 
+    char* fileLoc{nullptr};
+    int precision{0};
+    int iterations{0};
+    char* outputFile{nullptr};
 
     // crash if there were CLI errors
     try
     {
-        if (errorMsg != "") throw invalid_argument(errorMsg);
+        bool helpPrinted = parseCmdOptions(argc, argv, fileLoc, precision, iterations, outputFile);
     }
-    catch (const invalid_argument& ia)
+    catch (const exception& e)
     {
-        cerr << ia.what() << endl;
+        printHelp(argv[0]);
+        cerr << e.what() << endl;
         return 0;
     }
+    
 
-    int precision{0};
-    int iterations{0};
-    if (cla["precision"])  precision  = atoi(cla["precision"]);
-    if (cla["iterations"]) iterations = atoi(cla["iterations"]); 
-
+    // load table
     unordered_map<ProdInputPair,double> ioTable;
-    bool ioTableLoaded = loadIOTable(cla["file"], ioTable);
     try
     {
-        if (!ioTableLoaded) throw invalid_argument("FILE ERROR: invalid file");
+        bool ioTableLoaded = loadIOTable(fileLoc, ioTable);
     }
-    catch (const invalid_argument& ia)
+    catch (const bad_file& bf)
     {
-        cerr << ia.what() << endl;
+        cerr << bf.what() << endl;
         return 0;
     }
 
@@ -201,10 +196,11 @@ int main(int argc, char* argv[])
     if (precision)  calcPricesPrec(ioTable, prices, precision);
     if (iterations) calcPricesConstIter(ioTable, prices, iterations);
 
-    if (cla["outputFile"]) savePricesToFile(prices, cla["outputFile"]);
+    if (outputFile) savePricesToFile(prices, outputFile);
     else printPrices(prices);
 
-    auto stop = chrono::high_resolution_clock::now();
+
+    auto stop     = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(stop-start);
 
     cout << setprecision(5) << "\nTime taken (seconds): " << duration.count()/1000.0 << endl << endl;
